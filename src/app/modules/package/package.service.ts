@@ -25,11 +25,15 @@ const getAllPackages = async (query: Record<string, string>) => {
   return { data, meta };
 };
 
+// get single package
 const getSinglePackage = async (slug: string) => {
   const pkg = await Package.findOne({ slug }).populate("packageType").lean();
   if (!pkg) throw new Error("Package not found.");
   return pkg;
 };
+
+
+// update package
 
 const updatePackage = async (id: string, payload: Partial<IPackage>) => {
   const existing = await Package.findById(id);
@@ -57,7 +61,7 @@ const updatePackage = async (id: string, payload: Partial<IPackage>) => {
 
   return updated;
 };
-
+///////
 const deletePackage = async (id: string) => {
   const existing = await Package.findById(id);
   if (!existing) throw new Error("Package not found.");
@@ -67,18 +71,26 @@ const deletePackage = async (id: string) => {
   }
   return await Package.findByIdAndDelete(id);
 };
+
+
+////
 const createPackageType = async (payload: IPackageType) => {
   const exist = await PackageType.findOne({ name: payload.name });
   if (exist) throw new Error("Package type already exists.");
   return await PackageType.create(payload);
 };
 
+
+//////
 const getAllPackageTypes = async (query: Record<string, string>) => {
   const qb = new QueryBuilder(PackageType.find(), query);
   const typesQuery = qb.search(["name"]).filter().sort().fields().paginate();
   const [data, meta] = await Promise.all([typesQuery.build(), qb.getMeta()]);
   return { data, meta };
 };
+
+
+// get package stats
 
 const getPackageStats = async () => {
   const totalPackages = await Package.countDocuments();

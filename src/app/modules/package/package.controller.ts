@@ -25,13 +25,12 @@ const getSinglePackage = catchAsync(async (req: Request, res: Response) => {
 });
 ///
 const updatePackage = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const payload: Partial<IPackage> = {
-    ...req.body,
-  };
+  const { id } = req.params;
+  const payload: Partial<IPackage> = req.body;
   const result = await PackageService.updatePackage(id, payload);
   sendResponse(res, { statusCode: 200, success: true, message: "Package updated", data: result });
 });
+
 ////
 const deletePackage = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;

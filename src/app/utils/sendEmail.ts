@@ -38,7 +38,7 @@ export const sendEmail = async ({
     attachments
 }: SendEmailOptions) => {
     try {
-        console.log(to , ' ............................  ')
+        console.log(to , ' ............................ rrrrrrrrrrrrrrrrrrrrrrrrrr  ')
         const templatePath = path.join(__dirname, `templates/${templateName}.ejs`)
         const html = await ejs.renderFile(templatePath, templateData)
         const info = await transporter.sendMail({

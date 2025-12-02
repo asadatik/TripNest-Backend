@@ -21,9 +21,14 @@ router.get("/", PackageController.getAllPackages);
 router.post( "/create",checkAuth(UserRole.ADMIN),validateRequest(createPackageZodSchema),
   PackageController.createPackage
 );
+
+
+/* Admin stats (special feature) */
+router.get("/stats", checkAuth(UserRole.ADMIN), PackageController.getPackageStats);
+
+
 // Get single Package
 router.get("/:slug", PackageController.getSinglePackage);
-
 router.patch(
   "/:id",
   checkAuth(UserRole.ADMIN),
@@ -33,7 +38,6 @@ router.patch(
 
 router.delete("/:id", checkAuth(UserRole.ADMIN), PackageController.deletePackage);
 
-/* Admin stats (special feature) */
-router.get("/admin/stats", checkAuth(UserRole.ADMIN), PackageController.getPackageStats);
+
 
 export const PackageRoutes = router;
