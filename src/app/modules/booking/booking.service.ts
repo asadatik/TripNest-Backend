@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from "mongoose";
 import { Booking } from "./booking.model";
@@ -6,10 +7,6 @@ import { IBooking, BookingStatus, PaymentStatus } from "./booking.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { Package } from "../package/package.model";
 import { bookingSearchableFields } from "./booking.constant";
-
-
-
-
 
 
 //createBooking: সিট খালি আছে কিনা চেক করা, নতুন বুকিং তৈরি করা এবং availableSeats কমিয়ে ফেলা 
@@ -49,12 +46,32 @@ const createBooking = async (payload: IBooking) => {
 };
 
 //getAllBookings: অ্যাডমিনের জন্য সব বুকিংয়ের লিস্ট বের করা
+
 const getAllBookings = async (query: Record<string, string>) => {
-  const qb = new QueryBuilder(Booking.find().populate("member", "name email").populate("package", "title slug"), query);
-  const bookingsQuery = qb.search(bookingSearchableFields).filter().sort().fields().paginate();
-  const [data, meta] = await Promise.all([bookingsQuery.build(), qb.getMeta()]);
+  const qb = new QueryBuilder(
+    Booking.find()
+      .populate("member", "name email")
+      .populate("package", "title slug"),
+    query
+  );
+
+  const bookingsQuery = qb
+    .search(bookingSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    bookingsQuery.build(),
+    qb.getMeta(),
+  ]);
+
   return { data, meta };
 };
+
+
+
 
 //getSingleBooking: id দিয়ে নির্দিষ্ট একটি বুকিং খুঁজে বের করা
 const getSingleBooking = async (id: string) => {
@@ -111,9 +128,12 @@ const updateBookingStatus = async (id: string, payload: Partial<IBooking>) => {
 // cancelBookingByUser: ইউজার নিজেই যদি বুকিং বাতিল করে, তাহলে সেই হ্যান্ডেল করা 
 const cancelBookingByUser = async (id: string, memberId: string) => {
   const booking = await Booking.findById(id);
-  if (!booking) throw new Error("Booking not found.");
-  if (booking.member.toString() !== memberId.toString()) throw new Error("Unauthorized.");
 
+  console.log("Cancelling booking ID:", id, "for member ID:", memberId);
+  console.log("Booking found:", booking);
+  
+  if (!booking) throw new Error("Booking not found.");
+  if (booking.member.toString() !== memberId) throw new Error("Unauthorized to cancel this booking.");
   if (booking.status === BookingStatus.CANCELLED) throw new Error("Booking already cancelled.");
 
   // increment seats

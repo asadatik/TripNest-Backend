@@ -34,6 +34,8 @@ const updatePackage = catchAsync(async (req: Request, res: Response) => {
 ////
 const deletePackage = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+ 
+  //  console.log("Deleting package with id:", id);
   const result = await PackageService.deletePackage(id);
   sendResponse(res, { statusCode: 200, success: true, message: "Package deleted", data: result });
 });

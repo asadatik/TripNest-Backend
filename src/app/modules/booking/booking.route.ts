@@ -3,13 +3,12 @@ import { checkAuth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { UserRole } from "../user/user.interface";
 import { BookingController } from "./booking.controller";
-import { createBookingZodSchema, updateBookingStatusZodSchema } from "./booking.validation";
+import { createBookingZodSchema,updateBookingStatusZodSchema } from "./booking.validation";
 
 const router = express.Router();
 
 //list packages/bookings by queries (admin will use getAll)
-router.get("/", checkAuth(UserRole.ADMIN), BookingController.getAllBookings);
-
+router.get("/", checkAuth(UserRole.ADMIN),  BookingController.getAllBookings);
 
 
 // Member endpoints

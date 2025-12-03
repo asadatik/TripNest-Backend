@@ -3,7 +3,7 @@ import { IBooking, BookingStatus, PaymentStatus } from "./booking.interface";
 
 const bookingSchema = new Schema<IBooking>(
   {
-    member: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    member: { type: Schema.Types.ObjectId, ref: "User", },
     package: { type: Schema.Types.ObjectId, ref: "Package", required: true },
     startDate: { type: Date },
     endDate: { type: Date },
