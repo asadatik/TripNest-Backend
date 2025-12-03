@@ -19,6 +19,7 @@ export const updateBookingStatusZodSchema = z.object({
     .optional(),
   transactionId: z.string().optional(),
   notes: z.string().max(500).optional(),
+  
 
 });
 

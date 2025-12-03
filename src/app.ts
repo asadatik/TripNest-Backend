@@ -93,6 +93,14 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
+// For all non-webhook routes
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/v1/payments/webhook") return next();
+  express.json()(req, res, next);
+});
+
+
+
 // global error handler
 
 app.use(globalErrorHandler)

@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@types/nodemailer": "^7.0.1",
+    "body-parser": "^2.2.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
@@ -47,6 +48,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "redis": "^5.8.2",
+    "stripe": "^20.0.0",
     "zod": "^4.0.5"
   }
 }
