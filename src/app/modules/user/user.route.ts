@@ -11,8 +11,10 @@ const router = Router()
 
 //
 router.post("/register",validateRequest(createUserZodSchema), UserControllers.createUser)
-//
-router.get("/all-users", checkAuth(UserRole.ADMIN), UserControllers.getAllUsers)
+
+
+// checkAuth( UserRole.ADMIN ) baki acee
+router.get("/all-users",  checkAuth( UserRole.ADMIN ) , UserControllers.getAllUsers)
 //
 router.get("/me", checkAuth(...Object.values(UserRole)), UserControllers.getMe)
 //

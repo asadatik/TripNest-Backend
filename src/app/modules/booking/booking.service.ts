@@ -30,7 +30,7 @@ const createBooking = async (payload: IBooking) => {
       pkg.availableSeats = (pkg.availableSeats || 0) - (payload.pax || 1);
       await pkg.save({ session });
     }
-
+       
     // Create booking
     const booking = await Booking.create([payload], { session });
     await session.commitTransaction();

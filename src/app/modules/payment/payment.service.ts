@@ -96,16 +96,16 @@ const handleStripeWebhook = async (event: any) => {
     }
 
     // update booking
-    const booking = await Booking.findById(bookingId);
+  const booking = await Booking.findById(bookingId).populate("package");
 
 
   if (!booking) throw new AppError(404, "Booking not found");
 
 
-  console.log("Booking found:", booking);
+  console.log("Booking found.................webhook:", booking);
 
     if (booking) {
-      booking.paymentStatus = "PAID";
+      booking.paymentStatus = PaymentStatus.PAID;
       booking.status = "CONFIRMED";
       booking.transactionId = paymentIntentId;
       await booking.save();

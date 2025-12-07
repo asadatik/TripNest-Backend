@@ -24,11 +24,11 @@ const moduleRoutes = [
     },
 
     {
-        path: "/package",
+        path: "/packages",
         route: PackageRoutes
     } ,
     {
-        path: "/booking",
+        path: "/bookings",
         route : BookingRoutes
     } ,
 

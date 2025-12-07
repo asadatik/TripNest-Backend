@@ -17,6 +17,7 @@ export class QueryBuilder<T> {
   filter(): this {
     const filter: Record<string, unknown> = { ...this.query };
 
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     excludeField.forEach(f => delete filter[f]);
 
     this.filterQuery = filter;

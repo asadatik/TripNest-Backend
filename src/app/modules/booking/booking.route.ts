@@ -8,7 +8,9 @@ import { createBookingZodSchema,updateBookingStatusZodSchema } from "./booking.v
 const router = express.Router();
 
 //list packages/bookings by queries (admin will use getAll)
-router.get("/", checkAuth(UserRole.ADMIN),  BookingController.getAllBookings);
+
+
+router.get("/", checkAuth(UserRole.ADMIN) ,  BookingController.getAllBookings);
 
 
 // Member endpoints

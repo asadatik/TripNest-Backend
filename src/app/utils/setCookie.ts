@@ -9,16 +9,16 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
     if (tokenInfo.accessToken) {
         res.cookie("accessToken", tokenInfo.accessToken, {
             httpOnly: true,
-            secure: true ,
-            sameSite : "none" 
+           secure: false,   // LOCALHOST ONLY
+  sameSite: "lax"
         })
     }
 
     if (tokenInfo.refreshToken) {
         res.cookie("refreshToken", tokenInfo.refreshToken, {
             httpOnly: true,
-            secure: true ,
-            sameSite : "none" 
+           secure: false,   // LOCALHOST ONLY
+  sameSite: "lax"
 
         })
     }
