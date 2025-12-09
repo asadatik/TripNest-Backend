@@ -12,7 +12,7 @@ const paymentSchema = new Schema<IPayment>(
     status: {
       type: String,
       enum: Object.values(PaymentStatus),
-      default: PaymentStatus.PENDING,
+      default: PaymentStatus.UNPAID,
     },
     metadata: { type: Schema.Types.Mixed },
   },

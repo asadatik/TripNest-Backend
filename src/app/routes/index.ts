@@ -33,7 +33,7 @@ const moduleRoutes = [
     } ,
 
     {
-        path: "/payment",
+        path: "/payments",
         route : PaymentRoutes
     }
 

@@ -1,57 +1,53 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { stripe } from "./stripe.config";
-import { Payment } from "./payment.model";
 
-import { Booking } from "../booking/booking.model";
-import { Package } from "../package/package.model";
+import { stripe } from "./stripe.config"
+import { Payment } from "./payment.model"
+import { Booking } from "../booking/booking.model"
+import { Package } from "../package/package.model"
+import { PaymentStatus } from "./payment.interface"
+import AppError from "../../errorHelper/appError"
+import { BookingStatus } from "../booking/booking.interface"
 
-import { IPayment, PaymentStatus } from "./payment.interface";
-import mongoose from "mongoose";
-import AppError from "../../errorHelper/appError";
+const createCheckoutSession = async (
+  bookingId: string,
+  successUrl: string,
+  cancelUrl: string,
+) => {
+  console.log("Creating checkout session for bookingId:", bookingId)
 
+  const booking = await Booking.findById(bookingId).populate("package")
+  if (!booking) throw new AppError(404, "Booking not found")
 
-const CURRENCY = "bdt"; // Stripe expects lowercase 'bdt' etc. but Stripe may not support BDT for all flows; often use 'usd' for stripe tests.
+  console.log("Booking found:", booking)
 
-const createCheckoutSession = async (bookingId: string, successUrl: string, cancelUrl: string) => {
-
-    console.log("Creating checkout session for bookingId:", bookingId);
-  // load booking and package
-  const booking = await Booking.findById(bookingId).populate("package");
-  if (!booking) throw new AppError(404, "Booking not found");
-
-  console.log("Booking found:", booking);
-
-  // Prevent duplicate session if payment already PAID
-  if (booking?.paymentStatus === "PAID") {
-    throw new AppError(400, "Booking already paid");
+  if (booking?.paymentStatus === PaymentStatus.PAID) {
+    throw new AppError(400, "Booking already paid")
   }
 
-  const pkg: any = booking.package;
-  const amount = Math.round((booking.totalAmount || 0) * 100); // cents (or smallest currency unit)
-  const currency = (booking.currency || "BDT").toLowerCase();
+  const pkg: any = booking.package
+  const amount = Math.round((booking.totalAmount || 0) * 100)
+  const currency = (booking.currency || "BDT").toLowerCase()
 
-  // create a Payment record (pending) to track
   const paymentRecord = await Payment.create({
     booking: booking._id,
     amount: booking.totalAmount,
     currency: booking.currency || "BDT",
     gateway: "STRIPE",
-    status: PaymentStatus.PENDING,
-  });
+    status: PaymentStatus.UNPAID,
+  })
 
-  // Stripe: create Checkout Session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: [
       {
         price_data: {
-          currency: currency,
+          currency,
           product_data: {
             name: `TripNest Booking: ${pkg.title || "Package"}`,
             description: pkg.summary || pkg.description || "",
           },
-          unit_amount: amount, // in smallest currency unit
+          unit_amount: amount,
         },
         quantity: 1,
       },
@@ -63,89 +59,152 @@ const createCheckoutSession = async (bookingId: string, successUrl: string, canc
       bookingId: booking._id.toString(),
       paymentId: paymentRecord._id.toString(),
     },
-  });
+  })
 
-  // Save session id to Payment record
-  paymentRecord.gatewaySessionId = session.id;
-  await paymentRecord.save();
+  paymentRecord.gatewaySessionId = session.id
+  await paymentRecord.save()
 
   return {
     sessionId: session.id,
     url: session.url,
-  };
-};
+  }
+}
 
+/**
+ * ✅ Webhook ছাড়া payment confirm করার জন্য:
+ * success_url থেকে session_id নিয়ে এই ফাংশনকে call করব।
+ */
+const confirmCheckoutSession = async (sessionId: string, userId: string) => {
+  // 1) Stripe থেকে session ফেচ করো
+  const session = await stripe.checkout.sessions.retrieve(sessionId)
 
-
-const handleStripeWebhook = async (event: any) => {
-  // handle checkout.session.completed and payment_intent.succeeded events
-  const type = event.type;
-
-  if (type === "checkout.session.completed") {
-    const session = event.data.object;
-    const bookingId = session.metadata?.bookingId;
-    const paymentId = session.metadata?.paymentId;
-    const paymentIntentId = session.payment_intent;
-
-    // mark payment record success
-    const payment = await Payment.findById(paymentId);
-    if (payment) {
-      payment.status = PaymentStatus.PAID;
-      payment.gatewayPaymentIntentId = paymentIntentId;
-      await payment.save();
-    }
-
-    // update booking
-  const booking = await Booking.findById(bookingId).populate("package");
-
-
-  if (!booking) throw new AppError(404, "Booking not found");
-
-
-  console.log("Booking found.................webhook:", booking);
-
-    if (booking) {
-      booking.paymentStatus = PaymentStatus.PAID;
-      booking.status = "CONFIRMED";
-      booking.transactionId = paymentIntentId;
-      await booking.save();
-
-      // decrement package seats inside a session (best effort)
-      const pkg = await Package.findById(booking.package);
-      if (pkg && typeof pkg.availableSeats === "number") {
-        pkg.availableSeats = (pkg.availableSeats || 0) - (booking.pax || 1);
-        if (pkg.availableSeats < 0) pkg.availableSeats = 0;
-        await pkg.save();
-      }
-    }
+  if (!session) {
+    throw new AppError(404, "Stripe session not found")
   }
 
-  if (type === "payment_intent.payment_failed") {
-    const pi = event.data.object;
-    const metadata = pi.metadata || {};
-    const paymentId = metadata.paymentId;
-    const payment = await Payment.findById(paymentId);
-    if (payment) {
-      payment.status = PaymentStatus.FAILED;
-      await payment.save();
-    }
-
-    // optionally update booking paymentStatus = FAILED
-    const bookingId = metadata.bookingId;
-    if (bookingId) {
-      const booking = await Booking.findById(bookingId);
-      if (booking) {
-        booking.paymentStatus = "FAILED";
-        await booking.save();
-      }
-    }
+  if (session.payment_status !== "paid") {
+    throw new AppError(400, "Payment not completed")
   }
 
-  // Other events can be handled as needed
-  return true;
-};
+  const metadata = session.metadata || {}
+  const bookingId = metadata.bookingId
+  const paymentId = metadata.paymentId
+  const paymentIntentId = session.payment_intent as string | null
+
+  if (!bookingId || !paymentId) {
+    throw new AppError(
+      400,
+      "Missing bookingId or paymentId in Stripe metadata",
+    )
+  }
+
+  // 2) Payment আপডেট
+  const payment = await Payment.findById(paymentId)
+  if (!payment) {
+    throw new AppError(404, "Payment record not found")
+  }
+
+  payment.status = PaymentStatus.PAID
+  payment.gatewaySessionId = session.id
+  if (paymentIntentId) {
+    payment.gatewayPaymentIntentId = paymentIntentId
+  }
+  await payment.save()
+
+  // 3) Booking আপডেট
+  const booking = await Booking.findOne({ _id: bookingId, member: userId }).populate(
+    "package",
+  )
+  if (!booking) {
+    throw new AppError(404, "Booking not found for this user")
+  }
+
+  booking.paymentStatus = PaymentStatus.PAID
+  booking.status = BookingStatus.CONFIRMED
+  if (paymentIntentId) {
+    booking.transactionId = paymentIntentId
+  }
+  await booking.save()
+
+  // 4) seat adjust (এটা চাইলে createBooking এও করতে পারো, কিন্তু এখানে safe)
+  const pkg = await Package.findById(booking.package)
+  if (pkg && typeof pkg.availableSeats === "number") {
+    pkg.availableSeats =
+      (pkg.availableSeats || 0) - (booking.pax || 1)
+    if (pkg.availableSeats < 0) pkg.availableSeats = 0
+    await pkg.save()
+  }
+
+  return { booking, payment, session }
+}
+
+/**
+ * 🔴 আগের webhook handler future use এর জন্য রেখে দিলাম,
+ * এখন আমরা confirmCheckoutSession flow ব্যবহার করছি।
+ */
+// const handleStripeWebhook = async (event: Stripe.Event) => {
+//   const type = event.type
+//
+//   if (type === "checkout.session.completed") {
+//     const session = event.data.object as Stripe.Checkout.Session
+//     const bookingId = session.metadata?.bookingId
+//     const paymentId = session.metadata?.paymentId
+//     const paymentIntentId = session.payment_intent as string | null
+//
+//     const payment = await Payment.findById(paymentId)
+//     if (payment) {
+//       payment.status = PaymentStatus.PAID
+//       if (paymentIntentId) {
+//         payment.gatewayPaymentIntentId = paymentIntentId
+//       }
+//       await payment.save()
+//     }
+//
+//     const booking = await Booking.findById(bookingId).populate("package")
+//     if (!booking) throw new AppError(404, "Booking not found")
+//
+//     booking.paymentStatus = PaymentStatus.PAID
+//     booking.status = BookingStatus.CONFIRMED
+//     if (paymentIntentId) {
+//       booking.transactionId = paymentIntentId
+//     }
+//     await booking.save()
+//
+//     const pkg = await Package.findById(booking.package)
+//     if (pkg && typeof pkg.availableSeats === "number") {
+//       pkg.availableSeats =
+//         (pkg.availableSeats || 0) - (booking.pax || 1)
+//       if (pkg.availableSeats < 0) pkg.availableSeats = 0
+//       await pkg.save()
+//     }
+//   }
+//
+//   if (type === "payment_intent.payment_failed") {
+//     const pi = event.data.object as Stripe.PaymentIntent
+//     const metadata = pi.metadata || {}
+//     const paymentId = metadata.paymentId
+//     const payment = await Payment.findById(paymentId)
+//
+//     if (payment) {
+//       payment.status = PaymentStatus.FAILED
+//       await payment.save()
+//     }
+//
+//     const bookingId = metadata.bookingId
+//     if (bookingId) {
+//       const booking = await Booking.findById(bookingId)
+//       if (booking) {
+//         booking.paymentStatus = PaymentStatus.FAILED
+//         await booking.save()
+//       }
+//     }
+//   }
+//
+//   return true
+// }
 
 export const PaymentService = {
   createCheckoutSession,
-  handleStripeWebhook,
-};
+  confirmCheckoutSession,
+  // handleStripeWebhook, // এখন ব্যবহার করছো না
+}

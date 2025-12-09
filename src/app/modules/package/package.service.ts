@@ -39,25 +39,9 @@ const updatePackage = async (id: string, payload: Partial<IPackage>) => {
   const existing = await Package.findById(id);
   if (!existing) throw new Error("Package not found.");
 
-  // merge images
-  if (payload.images && payload.images.length > 0) {
-    payload.images = [...(existing.images || []), ...payload.images];
-  }
-
-  // remove images if requested
-  if (payload.deleteImages && payload.deleteImages.length > 0) {
-    const remaining = (existing.images || []).filter((u) => !payload.deleteImages?.includes(u));
-    // keep new images that are not in deleteImages
-    const newImgs = (payload.images || []).filter((i) => !payload.deleteImages?.includes(i));
-    payload.images = [...remaining, ...newImgs];
-  }
-
   const updated = await Package.findByIdAndUpdate(id, payload, { new: true });
 
-  // delete remote images
-  if (payload.deleteImages && payload.deleteImages.length > 0) {
-    await Promise.all(payload.deleteImages.map((url) => deleteImageFromCLoudinary(url)));
-  }
+
 
   return updated;
 };

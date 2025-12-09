@@ -3,47 +3,60 @@
 import mongoose from "mongoose";
 import { Booking } from "./booking.model";
 
-import { IBooking, BookingStatus, PaymentStatus } from "./booking.interface";
+import { IBooking, BookingStatus,  } from "./booking.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { Package } from "../package/package.model";
 import { bookingSearchableFields } from "./booking.constant";
+import { PaymentStatus } from "../payment/payment.interface";
 
 
 //createBooking: সিট খালি আছে কিনা চেক করা, নতুন বুকিং তৈরি করা এবং availableSeats কমিয়ে ফেলা 
 
 const createBooking = async (payload: IBooking) => {
-  // Start transaction to ensure seat-consistency
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const session = await mongoose.startSession()
+  session.startTransaction()
 
   try {
     // Load package and check availability
-    const pkg = await Package.findById(payload.package).session(session);
-    if (!pkg) throw new Error("Package not found.");
+    const pkg = await Package.findById(payload.package).session(session)
+    if (!pkg) throw new Error("Package not found.")
+
+    // ⭐ totalAmount + currency এখানে set করো
+    const pax = payload.pax || 1
+    const costFrom = (pkg as any).costFrom || 0
+
+    if (payload.totalAmount == null) {
+      payload.totalAmount = costFrom * pax
+    }
+    if (!payload.currency) {
+      payload.currency = (pkg as any).currency || "BDT"
+    }
 
     // If capacity defined, check
     if (pkg.availableSeats !== undefined && pkg.availableSeats !== null) {
-      if (pkg.availableSeats < (payload.pax || 1)) {
-        throw new Error("Not enough available seats for this package.");
+      if (pkg.availableSeats < pax) {
+        throw new Error("Not enough available seats for this package.")
       }
       // decrement available seats
-      pkg.availableSeats = (pkg.availableSeats || 0) - (payload.pax || 1);
-      await pkg.save({ session });
+      pkg.availableSeats = (pkg.availableSeats || 0) - pax
+      await pkg.save({ session })
     }
-       
-    // Create booking
-    const booking = await Booking.create([payload], { session });
-    await session.commitTransaction();
-    session.endSession();
 
-    // booking is returned as array due to create([..])
-    return booking[0];
+    // Create booking
+    const booking = await Booking.create([payload], { session })
+    await session.commitTransaction()
+    session.endSession()
+
+    return booking[0]
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
-    throw err;
+    await session.abortTransaction()
+    session.endSession()
+    throw err
   }
-};
+}
+
+
+
 
 //getAllBookings: অ্যাডমিনের জন্য সব বুকিংয়ের লিস্ট বের করা
 
@@ -94,7 +107,7 @@ const updateBookingStatus = async (id: string, payload: Partial<IBooking>) => {
   if (!booking) throw new Error("Booking not found.");
 
   const prevStatus = booking.status;
-  const prevPaymentStatus = booking.paymentStatus;
+  // const prevPaymentStatus = booking.paymentStatus;
 
   // Handle seat adjust when cancelling or confirming
   if (payload.status === BookingStatus.CANCELLED && prevStatus !== BookingStatus.CANCELLED) {

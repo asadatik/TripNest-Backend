@@ -5,7 +5,7 @@ export const createBookingZodSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   pax: z.number().int().positive("Pax must be a positive integer"),
-  totalAmount: z.number().nonnegative("Total amount must be non-negative"),
+  totalAmount: z.number().nonnegative("Total amount must be non-negative").optional (),
   currency: z.string().optional(),
   notes: z.string().max(500).optional(),
     member: z.string().optional() // <- optional for validation

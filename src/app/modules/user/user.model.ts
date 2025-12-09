@@ -38,7 +38,7 @@ const userSchema = new Schema<IUser>(
       default: AccountStatus.ACTIVE,
     },
 
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
 
     // oauth providers list

@@ -23,8 +23,9 @@ router.get("/me", checkAuth(...Object.values(UserRole)), UserControllers.getMe)
 // router.get('/receivers' , checkAuth( UserRole.ADMIN , UserRole. ) , UserControllers.getAllReceiver,
 // );
 
+// dlt user
 
-// 
+
 router.get("/:id", checkAuth(UserRole.ADMIN), UserControllers.getSingleUser)
 //
 router.patch("/:id", validateRequest(updateUserZodSchema), checkAuth(...Object.values(UserRole)), UserControllers.updateUser)

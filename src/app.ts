@@ -1,111 +1,44 @@
-
-// /* eslint-disable @typescript-eslint/no-unused-vars */
-// import express, {  NextFunction, Request, Response } from "express";
-// import cors from "cors";
-// import { router } from "./app/routes";
-// import { globalErrorHandler } from "./app/middlewares/globalerrorhandler";
-// import notFound from "./app/middlewares/notfoundroute";
-// import cookieParser from "cookie-parser";
-// import passport from "passport";
-// import expressSession from "express-session";
-// import "./app/config/passport";
-
-
-
-// const app  = express();
-
-// app.use(expressSession(
-//     {
-//         secret: "secret",
-//         resave: false,
-//         saveUninitialized: true, }
-
-// ))
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-// app.use(cookieParser());
-
-// //
-
-// app.use( cors({
-//     origin: "http://localhost:5173", // frontend url explicitly দিতে হবে
-//     credentials: true, // cookie/auth header পাঠানোর জন্য
-//   })   )
-
-// app.use(express.json())
-
-
-// app.use("/api/v1/", router)
-
-// app.get("/", (req: Request, res: Response) => {
-//   res.send("Welcome to library App");
-// });
-
-
-// // global error handler
-
-// app.use(globalErrorHandler)
-
-// // handle not found route   
-// app.use(notFound)
-
-// export default app;
-
-
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-constant-binary-expression */
-
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import express, {  NextFunction, Request, Response } from "express";
-import cors from "cors";
 
+import express, { NextFunction, Request, Response } from "express";
+import cors from "cors";
 import cookieParser from "cookie-parser";
+
 import { router } from "./app/routes";
 import { globalErrorHandler } from "./app/middlewares/globalerrorhandler";
 import notFound from "./app/middlewares/notfoundroute";
 
-
-
-const app  = express();
-
-
+const app = express();
 
 app.use(cookieParser());
+app.set("trust proxy", 1);
 
-app.set("trust proxy", 1); // trust first proxy
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-//
-
-app.use( cors({
-    origin: ["http://localhost:3000" , "http://localhost:3001"], // frontend url explicitly দিতে হবে], 
-    credentials: true, // cookie/auth header 
+// CORS
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
   })
 );
 
+// 🔵 Normal body parsers (webhook রুট আমরা PaymentRoutes এর ভেতর raw হিসেবে হ্যান্ডেল করব)
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-
-app.use("/api/v1/", router)
+// সব API রুট
+app.use("/api/v1/", router);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to library App");
 });
 
+// Global error handler
+app.use(globalErrorHandler);
 
-// For all non-webhook routes
-app.use((req, res, next) => {
-  if (req.originalUrl === "/api/v1/payment/webhook") return next();
-  express.json()(req, res, next);
-});
-
-
-
-// global error handler
-
-app.use(globalErrorHandler)
-
-// handle not found route   
-app.use(notFound)
+// Handle not found routes
+app.use(notFound);
 
 export default app;
-

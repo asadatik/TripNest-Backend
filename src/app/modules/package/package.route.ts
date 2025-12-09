@@ -5,6 +5,7 @@ import { UserRole } from "../user/user.interface";
 import { PackageController } from "./package.controller";
 import { createPackageZodSchema, updatePackageZodSchema } from "./package.validation";
 
+
 const router = express.Router();
 
 /* Package types */
@@ -17,10 +18,14 @@ router.post("/types", checkAuth(UserRole.ADMIN), PackageController.createPackage
 router.get("/", PackageController.getAllPackages);
 
 
-// Create Package (admin only)
-router.post( "/create",checkAuth(UserRole.ADMIN),validateRequest(createPackageZodSchema),
-  PackageController.createPackage
-);
+// Create Package (admin only, with images)
+router.post(
+  "/create",
+  checkAuth(UserRole.ADMIN),
+
+  validateRequest(createPackageZodSchema),
+  PackageController.createPackage,
+)
 
 
 /* Admin stats (special feature) */

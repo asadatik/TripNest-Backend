@@ -2,7 +2,7 @@
 import { Types } from "mongoose";
 
 export enum PaymentStatus {
-  PENDING = "PENDING",
+  UNPAID = "UNPAID",
   PAID = "PAID",
   FAILED = "FAILED",
   REFUNDED = "REFUNDED",
@@ -16,7 +16,7 @@ export interface IPayment {
   gateway?: string; // "STRIPE"
   gatewaySessionId?: string; // Stripe Checkout Session id
   gatewayPaymentIntentId?: string; // Stripe PaymentIntent id
-  status?: PaymentStatus;
+  status: PaymentStatus;
   metadata?: Record<string, any>;
   createdAt?: Date;
   updatedAt?: Date;

@@ -47,39 +47,6 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 
 
 
-// get All Sender
-// const getAllSender = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const data = await UserServices.getAllSender(
-//       req.query as Record<string, string>,
-//     );
-
-//     sendResponse(res, {
-//       success: true,
-//       statusCode: httpStatus.OK,
-//       message: 'Sender retrieved Successfully',
-//       data,
-//     });
-//   },
-// );
-
-// // get All  Receiver
-// const getAllReceiver = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const data = await UserServices.getAllReceiver(
-//       req.query as Record<string, string>,
-//     );
-
-//     sendResponse(res, {
-//       success: true,
-//       statusCode: httpStatus.OK,
-//       message: 'Receiver retrieved Successfully',
-//       data,
-//     });
-//   },
-// );
-
-
 
 // update user
 const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -100,6 +67,9 @@ const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunc
         data: user,
     })
 })
+
+
+
 
 // get own profile
 const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -140,11 +110,5 @@ export const UserControllers = {
   getMe,
   getSingleUser,
   updateUser , 
-  // getAllReceiver, 
-  // getAllSender
-
-
-
-
 
 }

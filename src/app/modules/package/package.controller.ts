@@ -8,7 +8,6 @@ import { PackageService } from "./package.service";
 // create Package controller
 const createPackage = catchAsync(async (req: Request, res: Response) => {
   const payload: IPackage = req.body;
-//
   const result = await PackageService.createPackage(payload);
   sendResponse(res, { statusCode: 201, success: true, message: "Package created", data: result });
 });

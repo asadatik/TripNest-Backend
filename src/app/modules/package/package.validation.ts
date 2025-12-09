@@ -22,6 +22,7 @@ export const createPackageZodSchema = z.object({
   packageType: z.string().optional(), // ObjectId as string
   division: z.string().optional(),    // ObjectId as string
   tags: z.array(z.string()).optional(),
+  images: z.array(z.string()).optional(),
   deleteImages: z.array(z.string()).optional(), // for update
 });
 

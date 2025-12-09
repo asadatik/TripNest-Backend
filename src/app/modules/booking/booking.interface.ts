@@ -1,17 +1,11 @@
 import { Types } from "mongoose";
+import { PaymentStatus } from "../payment/payment.interface"; // ✅ একটাই enum ইউজ করব
 
 export enum BookingStatus {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
   CANCELLED = "CANCELLED",
   COMPLETED = "COMPLETED",
-}
-
-export enum PaymentStatus {
-  UNPAID = "UNPAID",
-  PAID = "PAID",
-  REFUNDED = "REFUNDED",
-  FAILED = "FAILED",
 }
 
 export interface IBooking {
@@ -24,7 +18,7 @@ export interface IBooking {
   totalAmount: number;
   currency?: string;
   status?: BookingStatus;
-  paymentStatus?: PaymentStatus;
+  paymentStatus: PaymentStatus; // এখন payment.interface থেকে আসা enum
   transactionId?: string;      // gateway transaction id
   notes?: string;
   createdAt?: Date;
