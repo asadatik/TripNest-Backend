@@ -19,15 +19,13 @@ router.get("/me", checkAuth(UserRole.USER), BookingController.getMemberBookings)
 router.patch("/me/:id/cancel", checkAuth(UserRole.USER), BookingController.cancelBookingByUser);
 
 
+
+
 // Admin: single booking fetch
 router.get("/admin/:id", checkAuth(UserRole.ADMIN), BookingController.getSingleBooking);
 
-
-
 // Admin update status
-router.patch("/:id/status", checkAuth(UserRole.ADMIN), validateRequest(updateBookingStatusZodSchema), BookingController.updateBookingStatus);
+router.patch("/status/:id/", checkAuth(UserRole.ADMIN), validateRequest(updateBookingStatusZodSchema), BookingController.updateBookingStatus);
 
-// Public single booking (admin or owner can access; owner route uses /me)
-router.get("/:id", checkAuth(UserRole.ADMIN), BookingController.getSingleBooking);
 
 export const BookingRoutes = router;

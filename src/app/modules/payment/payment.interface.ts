@@ -11,6 +11,7 @@ export enum PaymentStatus {
 export interface IPayment {
   _id?: Types.ObjectId;
   booking: Types.ObjectId;
+  member?: Types.ObjectId;
   amount: number;
   currency?: string;
   gateway?: string; // "STRIPE"

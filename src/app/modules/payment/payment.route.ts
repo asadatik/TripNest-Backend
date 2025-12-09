@@ -9,8 +9,14 @@ import { initPaymentZodSchema } from "./payment.validation";
 
 const router = express.Router();
 
-router.get("/", PaymentController.getPayments);
+//get all
+router.get("/",   checkAuth(UserRole.ADMIN), PaymentController.getPayments);
 
+//get my payments
+router.get("/my-payments", checkAuth(UserRole.USER), PaymentController.getMyPayments)
+
+
+//create payment intent
 router.post(
   "/create",
   checkAuth(UserRole.USER),
@@ -18,11 +24,21 @@ router.post(
   PaymentController.initStripeCheckout
 );
 
+//confirm payment
 router.post(
   "/confirm",
   checkAuth(UserRole.USER),
   PaymentController.confirmStripePayment,
 )
+
+//get single payment
+router.get(
+  "/admin/:paymentId",
+  checkAuth(UserRole.ADMIN),
+  PaymentController.getSinglePayment
+);
+
+
 
 
 

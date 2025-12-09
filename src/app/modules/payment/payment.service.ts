@@ -8,7 +8,10 @@ import { Package } from "../package/package.model"
 import { PaymentStatus } from "./payment.interface"
 import AppError from "../../errorHelper/appError"
 import { BookingStatus } from "../booking/booking.interface"
+import { Types } from "mongoose"
 
+
+//create checkout session 
 const createCheckoutSession = async (
   bookingId: string,
   successUrl: string,
@@ -31,6 +34,7 @@ const createCheckoutSession = async (
 
   const paymentRecord = await Payment.create({
     booking: booking._id,
+    member: booking.member,
     amount: booking.totalAmount,
     currency: booking.currency || "BDT",
     gateway: "STRIPE",
@@ -70,10 +74,8 @@ const createCheckoutSession = async (
   }
 }
 
-/**
- * ✅ Webhook ছাড়া payment confirm করার জন্য:
- * success_url থেকে session_id নিয়ে এই ফাংশনকে call করব।
- */
+//
+
 const confirmCheckoutSession = async (sessionId: string, userId: string) => {
   // 1) Stripe থেকে session ফেচ করো
   const session = await stripe.checkout.sessions.retrieve(sessionId)
@@ -138,10 +140,60 @@ const confirmCheckoutSession = async (sessionId: string, userId: string) => {
   return { booking, payment, session }
 }
 
-/**
- * 🔴 আগের webhook handler future use এর জন্য রেখে দিলাম,
- * এখন আমরা confirmCheckoutSession flow ব্যবহার করছি।
- */
+
+
+
+
+// ADMIN: Get single payment
+const getSinglePaymentFromDB = async (paymentId: string) => {
+  if (!Types.ObjectId.isValid(paymentId)) {
+    throw new AppError(400, "Invalid payment ID")
+  }
+
+  const payment = await Payment.findById(paymentId)
+    .populate("member", "name email phone role")  
+    .populate({
+      path: "booking",
+      select: "pax status paymentStatus totalAmount",
+      populate: {
+        path: "package",
+        select: "title slug destination costFrom",
+      },
+    })
+
+  if (!payment) {
+    throw new AppError(404, "Payment not found")
+  }
+
+  return payment
+}
+
+// USER: Get my payments
+const getMyPaymentsFromDB = async (userId: string) => {
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new AppError(400, "Invalid user ID")
+  }
+
+  const payments = await Payment.find({ member: userId })  // 
+    .populate({
+      path: "booking",
+      select: "pax status paymentStatus totalAmount",
+      populate: {
+        path: "package",
+        select: "title slug destination costFrom durationDays",
+      },
+    })
+    .sort({ createdAt: -1 })
+
+  return payments
+}
+
+
+
+
+
+ //
+
 // const handleStripeWebhook = async (event: Stripe.Event) => {
 //   const type = event.type
 //
@@ -206,5 +258,7 @@ const confirmCheckoutSession = async (sessionId: string, userId: string) => {
 export const PaymentService = {
   createCheckoutSession,
   confirmCheckoutSession,
-  // handleStripeWebhook, // এখন ব্যবহার করছো না
+  getSinglePaymentFromDB,
+  getMyPaymentsFromDB
+  // handleStripeWebhook, 
 }

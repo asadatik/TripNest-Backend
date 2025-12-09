@@ -18,6 +18,8 @@ export type AuthRequest = Request & {
   }
 }
 
+
+//
 const initStripeCheckout = catchAsync(async (req: Request, res: Response) => {
   const { bookingId } = req.body
   if (!bookingId) throw new AppError(400, "bookingId is required")
@@ -43,6 +45,8 @@ const initStripeCheckout = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+
+//
 const confirmStripePayment = catchAsync(
   async (req: Request, res: Response) => {
 
@@ -74,6 +78,42 @@ const confirmStripePayment = catchAsync(
     })
   },
 )
+
+// ✅ USER: Get my payments
+const getMyPayments = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId; // checkAuth middleware theke ashe
+
+console.log( 'ttttttttttttttttttt',userId)
+
+
+  const result = await PaymentService.getMyPaymentsFromDB(userId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "My payments retrieved successfully",
+    data: result,
+  });
+});
+
+
+
+// ✅ ADMIN: Get single payment by ID
+const getSinglePayment = catchAsync(async (req: Request, res: Response) => {
+  const { paymentId } = req.params;
+
+  const result = await PaymentService.getSinglePaymentFromDB(paymentId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Payment retrieved successfully",
+    data: result,
+  });
+});
+
+
+
 
 /**
  *  Webhook handler in  future
@@ -114,6 +154,8 @@ const stripeWebhook = async (req: Request, res: Response) => {
   }
 }
 
+
+// get all 
 const getPayments = async (req: Request, res: Response) => {
   const payments = await Payment.find().sort({ createdAt: -1 })
   return res.json({
@@ -122,9 +164,19 @@ const getPayments = async (req: Request, res: Response) => {
   })
 }
 
+
+
+
 export const PaymentController = {
   initStripeCheckout,
   confirmStripePayment,
-  stripeWebhook, // 
-  getPayments,
+ getPayments,
+  getMyPayments,
+getSinglePayment,
+
+
+
+  stripeWebhook 
+ 
+
 }
