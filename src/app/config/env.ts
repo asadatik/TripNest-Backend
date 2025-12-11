@@ -20,7 +20,7 @@ interface EnvConfig {
     FRONTEND_URL: string
 
     STRIPE_SECRET_KEY: string
-    STRIPE_WEBHOOK_SECRET: string
+    // STRIPE_WEBHOOK_SECRET: string
 
 
     REDIS_HOST: string;
@@ -81,7 +81,7 @@ const loadEnvVariables = (): EnvConfig => {
         "CLOUDINARY_API_SECRET",
           //
         "STRIPE_SECRET_KEY",
-        "STRIPE_WEBHOOK_SECRET",
+
 
 
 
@@ -117,7 +117,7 @@ const loadEnvVariables = (): EnvConfig => {
         REDIS_PASSWORD: process.env.REDIS_PASSWORD as string,
 
         STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
-        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
+        // STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
   
         
 
