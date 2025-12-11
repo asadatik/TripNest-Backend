@@ -19,7 +19,7 @@ app.set("trust proxy", 1);
 // CORS
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "http://localhost:3001"  ,"https://trip-nest-front-end.vercel.app"   ],
     credentials: true,
   })
 );
