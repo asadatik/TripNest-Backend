@@ -11,9 +11,9 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
   if (tokenInfo.accessToken) {
     res.cookie("accessToken", tokenInfo.accessToken, {
       httpOnly: true,
-      secure: isProd, // ⭐ production এ true, লোকালে false
-      sameSite: isProd ? "none" : "lax", // ⭐ cross-site এর জন্য none
-      // domain set কোরো না Render এ, default থাকুক [web:318][web:324]
+      secure: isProd, //
+      sameSite: isProd ? "none" : "lax", // 
+
     })
   }
 
