@@ -6,7 +6,7 @@ import { Request, Response } from "express"
 import { catchAsync } from "../../utils/catchAsync"
 import { sendResponse } from "../../utils/sendResponse"
 import { PaymentService } from "./payment.service"
-import { stripe } from "./stripe.config"
+// import { stripe } from "./stripe.config"
 import AppError from "../../errorHelper/appError"
 import { Payment } from "./payment.model"
 
@@ -118,41 +118,41 @@ const getSinglePayment = catchAsync(async (req: Request, res: Response) => {
 /**
  *  Webhook handler in  future
  */
-const stripeWebhook = async (req: Request, res: Response) => {
-  const sig = req.headers["stripe-signature"] as string | undefined
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+// const stripeWebhook = async (req: Request, res: Response) => {
+//   const sig = req.headers["stripe-signature"] as string | undefined
+//   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
-  if (!webhookSecret) {
-    return res.status(500).send("Webhook secret not configured")
-  }
-  if (!sig) {
-    return res.status(400).send("Missing Stripe-Signature header")
-  }
+//   if (!webhookSecret) {
+//     return res.status(500).send("Webhook secret not configured")
+//   }
+//   if (!sig) {
+//     return res.status(400).send("Missing Stripe-Signature header")
+//   }
 
-  let event
+//   let event
 
-  try {
-    console.log("isBuffer:", Buffer.isBuffer(req.body))
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    event = stripe.webhooks.constructEvent(
-      req.body as Buffer,
-      sig,
-      webhookSecret,
-    )
-  } catch (err: any) {
-    console.error("Webhook signature verification failed.", err.message)
-    return res.status(400).send(`Webhook Error: ${err.message}`)
-  }
+//   try {
+//     console.log("isBuffer:", Buffer.isBuffer(req.body))
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     event = stripe.webhooks.constructEvent(
+//       req.body as Buffer,
+//       sig,
+//       webhookSecret,
+//     )
+//   } catch (err: any) {
+//     console.error("Webhook signature verification failed.", err.message)
+//     return res.status(400).send(`Webhook Error: ${err.message}`)
+//   }
 
-  try {
-    // এখন PaymentService.handleStripeWebhook কমেন্টেড, future এ লাগলে uncomment করো
-    // await PaymentService.handleStripeWebhook(event as any)
-    return res.json({ received: true })
-  } catch (err: any) {
-    console.error("Webhook handling failed", err)
-    return res.status(500).send("Internal error")
-  }
-}
+//   try {
+//     // এখন PaymentService.handleStripeWebhook কমেন্টেড, future এ লাগলে uncomment করো
+//     // await PaymentService.handleStripeWebhook(event as any)
+//     return res.json({ received: true })
+//   } catch (err: any) {
+//     console.error("Webhook handling failed", err)
+//     return res.status(500).send("Internal error")
+//   }
+// }
 
 
 // get all 
@@ -176,7 +176,7 @@ getSinglePayment,
 
 
 
-  stripeWebhook 
+  // stripeWebhook 
  
 
 }
