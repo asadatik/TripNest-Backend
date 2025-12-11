@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateRequest = void 0;
+const validateRequest = (zodSchema) => async (req, res, next) => {
+    try {
+        console.log("🚀 ~ validateRequest ~ incoming body:", req.body);
+        req.body = await zodSchema.parseAsync(req.body);
+        console.log("🚀 ~ validateRequest ~ parsed body:", req.body);
+        next();
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.validateRequest = validateRequest;
