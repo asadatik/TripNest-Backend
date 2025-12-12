@@ -10,7 +10,7 @@ import { bookingSearchableFields } from "./booking.constant";
 import { PaymentStatus } from "../payment/payment.interface";
 
 
-//createBooking: সিট খালি আছে কিনা চেক করা, নতুন বুকিং তৈরি করা এবং availableSeats কমিয়ে ফেলা 
+//createBooking: 
 
 const createBooking = async (payload: IBooking) => {
   const session = await mongoose.startSession()
@@ -58,7 +58,7 @@ const createBooking = async (payload: IBooking) => {
 
 
 
-//getAllBookings: অ্যাডমিনের জন্য সব বুকিংয়ের লিস্ট বের করা
+//getAllBookings: 
 
 const getAllBookings = async (query: Record<string, string>) => {
   const qb = new QueryBuilder(
@@ -86,13 +86,13 @@ const getAllBookings = async (query: Record<string, string>) => {
 
 
 
-//getSingleBooking: id দিয়ে নির্দিষ্ট একটি বুকিং খুঁজে বের করা
+//getSingleBooking: 
 const getSingleBooking = async (id: string) => {
   const booking = await Booking.findById(id).populate("member", "name email phone").populate("package", "title slug costFrom");
   if (!booking) throw new Error("Booking not found.");
   return booking;
 };
-//  getMemberBookings: একজন নির্দিষ্ট ইউজারের বুকিংগুলো বের করা
+//  getMemberBookings: 
 const getMemberBookings = async (memberId: string, query: Record<string, string>) => {
   const qb = new QueryBuilder(Booking.find({ member: memberId }).populate("package", "title slug costFrom"), query);
   const bookingsQuery = qb.search(bookingSearchableFields).filter().sort().fields().paginate();
@@ -100,7 +100,7 @@ const getMemberBookings = async (memberId: string, query: Record<string, string>
   return { data, meta };
 };
 
-// updateBookingStatus: অ্যাডমিন দ্বারা স্ট্যাটাস পরিবর্তন করা (এবং সেই অনুযায়ী সিট সংখ্যা বাড়ানো বা কমানো হ্যান্ডেল করা)
+// updateBookingStatus: 
 const updateBookingStatus = async (id: string, payload: Partial<IBooking>) => {
   // If changing status to CANCELLED and booking was PAID -> set to REFUNDED (payment handling external)
   const booking = await Booking.findById(id);
@@ -153,7 +153,7 @@ const getMemberBookingById = async (userId: string, bookingId: string) => {
   return booking
 }
 
-// cancelBookingByUser: ইউজার নিজেই যদি বুকিং বাতিল করে, তাহলে সেই হ্যান্ডেল করা 
+// cancelBookingByUser: 
 const cancelBookingByUser = async (id: string, memberId: string) => {
   const booking = await Booking.findById(id);
 

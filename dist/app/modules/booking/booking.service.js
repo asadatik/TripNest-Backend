@@ -43,7 +43,7 @@ const QueryBuilder_1 = require("../../utils/QueryBuilder");
 const package_model_1 = require("../package/package.model");
 const booking_constant_1 = require("./booking.constant");
 const payment_interface_1 = require("../payment/payment.interface");
-//createBooking: সিট খালি আছে কিনা চেক করা, নতুন বুকিং তৈরি করা এবং availableSeats কমিয়ে ফেলা 
+//createBooking: 
 const createBooking = async (payload) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
@@ -82,7 +82,7 @@ const createBooking = async (payload) => {
         throw err;
     }
 };
-//getAllBookings: অ্যাডমিনের জন্য সব বুকিংয়ের লিস্ট বের করা
+//getAllBookings: 
 const getAllBookings = async (query) => {
     const qb = new QueryBuilder_1.QueryBuilder(booking_model_1.Booking.find()
         .populate("member", "name email")
@@ -99,21 +99,21 @@ const getAllBookings = async (query) => {
     ]);
     return { data, meta };
 };
-//getSingleBooking: id দিয়ে নির্দিষ্ট একটি বুকিং খুঁজে বের করা
+//getSingleBooking: 
 const getSingleBooking = async (id) => {
     const booking = await booking_model_1.Booking.findById(id).populate("member", "name email phone").populate("package", "title slug costFrom");
     if (!booking)
         throw new Error("Booking not found.");
     return booking;
 };
-//  getMemberBookings: একজন নির্দিষ্ট ইউজারের বুকিংগুলো বের করা
+//  getMemberBookings: 
 const getMemberBookings = async (memberId, query) => {
     const qb = new QueryBuilder_1.QueryBuilder(booking_model_1.Booking.find({ member: memberId }).populate("package", "title slug costFrom"), query);
     const bookingsQuery = qb.search(booking_constant_1.bookingSearchableFields).filter().sort().fields().paginate();
     const [data, meta] = await Promise.all([bookingsQuery.build(), qb.getMeta()]);
     return { data, meta };
 };
-// updateBookingStatus: অ্যাডমিন দ্বারা স্ট্যাটাস পরিবর্তন করা (এবং সেই অনুযায়ী সিট সংখ্যা বাড়ানো বা কমানো হ্যান্ডেল করা)
+// updateBookingStatus: 
 const updateBookingStatus = async (id, payload) => {
     // If changing status to CANCELLED and booking was PAID -> set to REFUNDED (payment handling external)
     const booking = await booking_model_1.Booking.findById(id);
@@ -160,7 +160,7 @@ const getMemberBookingById = async (userId, bookingId) => {
         .lean();
     return booking;
 };
-// cancelBookingByUser: ইউজার নিজেই যদি বুকিং বাতিল করে, তাহলে সেই হ্যান্ডেল করা 
+// cancelBookingByUser: 
 const cancelBookingByUser = async (id, memberId) => {
     const booking = await booking_model_1.Booking.findById(id);
     console.log("Cancelling booking ID:", id, "for member ID:", memberId);

@@ -17,13 +17,7 @@ router.post("/register",validateRequest(createUserZodSchema), UserControllers.cr
 router.get("/all-users",  checkAuth( UserRole.ADMIN ) , UserControllers.getAllUsers)
 //
 router.get("/me", checkAuth(...Object.values(UserRole)), UserControllers.getMe)
-//
-// router.get(  '/senders', checkAuth( UserRole.ADMIN ) ,   UserControllers.getAllSender,);
-// //
-// router.get('/receivers' , checkAuth( UserRole.ADMIN , UserRole. ) , UserControllers.getAllReceiver,
-// );
 
-// dlt user
 
 
 router.get("/:id", checkAuth(UserRole.ADMIN), UserControllers.getSingleUser)
