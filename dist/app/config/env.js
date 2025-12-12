@@ -39,7 +39,6 @@ const loadEnvVariables = () => {
         "CLOUDINARY_API_SECRET",
         //
         "STRIPE_SECRET_KEY",
-        "STRIPE_WEBHOOK_SECRET",
     ];
     requiredEnvVariables.forEach(key => {
         if (!process.env[key]) {
@@ -68,7 +67,7 @@ const loadEnvVariables = () => {
         REDIS_USERNAME: process.env.REDIS_USERNAME,
         REDIS_PASSWORD: process.env.REDIS_PASSWORD,
         STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+        // STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
         EMAIL_SENDER: {
             SMTP_USER: process.env.SMTP_USER,
             SMTP_PASS: process.env.SMTP_PASS,

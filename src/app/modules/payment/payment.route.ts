@@ -16,6 +16,7 @@ router.get("/",   checkAuth(UserRole.ADMIN), PaymentController.getPayments);
 router.get("/my-payments", checkAuth(UserRole.USER), PaymentController.getMyPayments)
 
 
+
 //create payment intent
 router.post(
   "/create",

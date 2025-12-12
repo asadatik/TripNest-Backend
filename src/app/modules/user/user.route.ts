@@ -31,7 +31,6 @@ router.get("/:id", checkAuth(UserRole.ADMIN), UserControllers.getSingleUser)
 router.patch("/:id", validateRequest(updateUserZodSchema), checkAuth(...Object.values(UserRole)), UserControllers.updateUser)
 
 
-
 export const UserRoutes = router
 
 

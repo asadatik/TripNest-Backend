@@ -10,7 +10,7 @@ exports.PaymentController = void 0;
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
 const payment_service_1 = require("./payment.service");
-const stripe_config_1 = require("./stripe.config");
+// import { stripe } from "./stripe.config"
 const appError_1 = __importDefault(require("../../errorHelper/appError"));
 const payment_model_1 = require("./payment.model");
 //
@@ -74,35 +74,37 @@ const getSinglePayment = (0, catchAsync_1.catchAsync)(async (req, res) => {
 /**
  *  Webhook handler in  future
  */
-const stripeWebhook = async (req, res) => {
-    const sig = req.headers["stripe-signature"];
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-        return res.status(500).send("Webhook secret not configured");
-    }
-    if (!sig) {
-        return res.status(400).send("Missing Stripe-Signature header");
-    }
-    let event;
-    try {
-        console.log("isBuffer:", Buffer.isBuffer(req.body));
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        event = stripe_config_1.stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    }
-    catch (err) {
-        console.error("Webhook signature verification failed.", err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-    try {
-        // এখন PaymentService.handleStripeWebhook কমেন্টেড, future এ লাগলে uncomment করো
-        // await PaymentService.handleStripeWebhook(event as any)
-        return res.json({ received: true });
-    }
-    catch (err) {
-        console.error("Webhook handling failed", err);
-        return res.status(500).send("Internal error");
-    }
-};
+// const stripeWebhook = async (req: Request, res: Response) => {
+//   const sig = req.headers["stripe-signature"] as string | undefined
+//   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+//   if (!webhookSecret) {
+//     return res.status(500).send("Webhook secret not configured")
+//   }
+//   if (!sig) {
+//     return res.status(400).send("Missing Stripe-Signature header")
+//   }
+//   let event
+//   try {
+//     console.log("isBuffer:", Buffer.isBuffer(req.body))
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     event = stripe.webhooks.constructEvent(
+//       req.body as Buffer,
+//       sig,
+//       webhookSecret,
+//     )
+//   } catch (err: any) {
+//     console.error("Webhook signature verification failed.", err.message)
+//     return res.status(400).send(`Webhook Error: ${err.message}`)
+//   }
+//   try {
+//     // এখন PaymentService.handleStripeWebhook কমেন্টেড, future এ লাগলে uncomment করো
+//     // await PaymentService.handleStripeWebhook(event as any)
+//     return res.json({ received: true })
+//   } catch (err: any) {
+//     console.error("Webhook handling failed", err)
+//     return res.status(500).send("Internal error")
+//   }
+// }
 // get all 
 const getPayments = async (req, res) => {
     const payments = await payment_model_1.Payment.find().sort({ createdAt: -1 });
@@ -117,5 +119,5 @@ exports.PaymentController = {
     getPayments,
     getMyPayments,
     getSinglePayment,
-    stripeWebhook
+    // stripeWebhook 
 };
