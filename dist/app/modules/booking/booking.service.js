@@ -1,12 +1,42 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BookingService = void 0;
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const mongoose_1 = __importDefault(require("mongoose"));
+const mongoose_1 = __importStar(require("mongoose"));
 const booking_model_1 = require("./booking.model");
 const booking_interface_1 = require("./booking.interface");
 const QueryBuilder_1 = require("../../utils/QueryBuilder");
@@ -118,6 +148,18 @@ const updateBookingStatus = async (id, payload) => {
     await booking.save();
     return booking;
 };
+const getMemberBookingById = async (userId, bookingId) => {
+    if (!mongoose_1.Types.ObjectId.isValid(bookingId)) {
+        return null;
+    }
+    const booking = await booking_model_1.Booking.findOne({
+        _id: bookingId,
+        user: userId,
+    })
+        .populate("package")
+        .lean();
+    return booking;
+};
 // cancelBookingByUser: ইউজার নিজেই যদি বুকিং বাতিল করে, তাহলে সেই হ্যান্ডেল করা 
 const cancelBookingByUser = async (id, memberId) => {
     const booking = await booking_model_1.Booking.findById(id);
@@ -148,5 +190,6 @@ exports.BookingService = {
     getSingleBooking,
     getMemberBookings,
     updateBookingStatus,
+    getMemberBookingById,
     cancelBookingByUser,
 };

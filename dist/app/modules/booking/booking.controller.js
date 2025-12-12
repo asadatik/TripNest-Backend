@@ -55,6 +55,19 @@ const updateBookingStatus = (0, catchAsync_1.catchAsync)(async (req, res) => {
     (0, sendResponse_1.sendResponse)(res, { statusCode: 200, success: true, message: "Booking status updated", data: result });
 });
 //
+const getMemberBookingById = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    const bookingId = req.params.id;
+    const booking = await booking_service_1.BookingService.getMemberBookingById(userId, bookingId);
+    return (0, sendResponse_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Booking fetched successfully",
+        data: booking,
+    });
+});
+//
 const cancelBookingByUser = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
     const memberId = req.user.userId;
@@ -67,5 +80,6 @@ exports.BookingController = {
     getSingleBooking,
     getMemberBookings,
     updateBookingStatus,
+    getMemberBookingById,
     cancelBookingByUser,
 };

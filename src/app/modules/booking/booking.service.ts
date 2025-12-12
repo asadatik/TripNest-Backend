@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Booking } from "./booking.model";
 
 import { IBooking, BookingStatus,  } from "./booking.interface";
@@ -138,6 +138,21 @@ const updateBookingStatus = async (id: string, payload: Partial<IBooking>) => {
   return booking;
 };
 
+const getMemberBookingById = async (userId: string, bookingId: string) => {
+  if (!Types.ObjectId.isValid(bookingId)) {
+    return null
+  }
+
+  const booking = await Booking.findOne({
+    _id: bookingId,
+    user: userId,
+  })
+    .populate("package")
+    .lean()
+
+  return booking
+}
+
 // cancelBookingByUser: ইউজার নিজেই যদি বুকিং বাতিল করে, তাহলে সেই হ্যান্ডেল করা 
 const cancelBookingByUser = async (id: string, memberId: string) => {
   const booking = await Booking.findById(id);
@@ -171,5 +186,6 @@ export const BookingService = {
   getSingleBooking,
   getMemberBookings,
   updateBookingStatus,
+  getMemberBookingById ,
   cancelBookingByUser,
 };

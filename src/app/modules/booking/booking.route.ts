@@ -16,13 +16,15 @@ router.get("/", checkAuth(UserRole.ADMIN) ,  BookingController.getAllBookings);
 // Member endpoints
 router.post("/create", checkAuth(UserRole.USER), validateRequest(createBookingZodSchema), BookingController.createBooking);
 router.get("/me", checkAuth(UserRole.USER), BookingController.getMemberBookings);
+router.get("/me/:id", checkAuth(UserRole.USER), BookingController.getMemberBookingById, )
+
 router.patch("/me/:id/cancel", checkAuth(UserRole.USER), BookingController.cancelBookingByUser);
 
 
 
 
 // Admin: single booking fetch
-router.get("/admin/:id", checkAuth(UserRole.ADMIN), BookingController.getSingleBooking);
+router.get("/admin/:id", checkAuth(UserRole.ADMIN), BookingController.getSingleBooking); 
 
 // Admin update status
 router.patch("/status/:id/", checkAuth(UserRole.ADMIN), validateRequest(updateBookingStatusZodSchema), BookingController.updateBookingStatus);

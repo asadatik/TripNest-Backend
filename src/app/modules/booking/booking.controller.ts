@@ -75,6 +75,28 @@ console.log("Updating booking ID:", id, "with payload:", payload);
   const result = await BookingService.updateBookingStatus(id, payload);
   sendResponse(res, { statusCode: 200, success: true, message: "Booking status updated", data: result });
 });
+//
+const getMemberBookingById = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id
+  const bookingId = req.params.id
+
+
+  
+  const booking = await BookingService.getMemberBookingById(
+    userId as string,
+    bookingId,
+  )
+   
+
+  return sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Booking fetched successfully",
+    data: booking,
+  })
+})
+
+
 
 //
 const cancelBookingByUser = catchAsync(async (req: Request, res: Response) => {
@@ -90,5 +112,6 @@ export const BookingController = {
   getSingleBooking,
   getMemberBookings,
   updateBookingStatus,
+  getMemberBookingById ,
   cancelBookingByUser,
 };

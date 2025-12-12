@@ -16,6 +16,7 @@ router.get("/", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.ADMIN), boo
 // Member endpoints
 router.post("/create", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.USER), (0, validateRequest_1.validateRequest)(booking_validation_1.createBookingZodSchema), booking_controller_1.BookingController.createBooking);
 router.get("/me", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.USER), booking_controller_1.BookingController.getMemberBookings);
+router.get("/me/:id", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.USER), booking_controller_1.BookingController.getMemberBookingById);
 router.patch("/me/:id/cancel", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.USER), booking_controller_1.BookingController.cancelBookingByUser);
 // Admin: single booking fetch
 router.get("/admin/:id", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.ADMIN), booking_controller_1.BookingController.getSingleBooking);
